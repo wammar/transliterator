@@ -15,3 +15,7 @@ features:
 
 for details about how it works, refer to (Ammar et al. 2012) http://www.cs.cmu.edu/~wammar/pubs/translit-acl12.pdf
 
+todos:
+- filter out long transliterations in crf training cuz it cuz memory consumption (which is too critical to mess with) is linear in number of observations. 
+- write a ductape for training/tuning and another for decoding
+
