@@ -1,9 +1,15 @@
 #!/bin/bash
 
-# split data into train/dev/test
+# prepare train/dev/test data
+# patronymic names need special handling
 python ruen/remove-patronymic-names.py -in ruen/guessed-patronymic-names.ru-en -out ruen/guessed-patronymic-names.ru-en.minus-middle
+# merge patronymic with normal names
 cat ruen/guessed-patronymic-names.ru-en.minus-middle ruen/guessed-names.ru-en > ruen/all-guessed-names.ru-en
-python /usr0/home/wammar/wammar-utils/lowercase.py ruen/all-guessed-names.ru-en ruen/ruen.all
+# inflect russian names and split first/last names into separate examples
+python augment-parallel-names-with-russian-inflections.py -mono /usr1/home/wammar/monolingual/plain-ru/news.2008.ru.shuffled -pnames ruen/all-guessed-names.ru-en -apnames ruen/augmented-all-guessed-names.ru-en
+# lowercase
+python /usr0/home/wammar/wammar-utils/lowercase.py ruen/augmented-all-guessed-names.ru-en ruen/ruen.all
+# split into train/dev/test
 python /usr0/home/wammar/wammar-utils/split-corpus.py -r 100:1:1 -c ruen/ruen.all -t ruen/ruen.train -d ruen/ruen.dev -s ruen/ruen.test
 
 # prepare all files before letter-alignments
@@ -51,3 +57,13 @@ python convert-alignments-to-cdec-format.py \
     ruen/ruen.train.lattice \
     ruen/ruen.train.labels \
     ruen/ruen.train.features
+
+# remove names of length 15+ characters from the training set (to speed up training and reduce memory usage)
+python ~/wammar-utils/prune-long-lines.py -tokens 30 -in ruen/ruen.train.train -out ruen/ruen.train.train.short
+cat ruen/ruen.train.train.short | grep -v "<scan> _ <scan>" >                    ruen/ruen.train.train.short.clean
+cat ruen/ruen.train.train.short.clean | grep -v "<scan> _ _" >                   ruen/ruen.train.train.short.clean.clean
+cat ruen/ruen.train.train.short.clean.clean | grep -v "_ _ _" >                  ruen/ruen.train.train.short.clean.clean.clean
+cat ruen/ruen.train.train.short.clean.clean.clean | grep -v "_ _ <scan>" >       ruen/ruen.train.train.short.clean.clean.clean.clean
+cat ruen/ruen.train.train.short.clean.clean.clean.clean | grep -v "_ <scan> _" > ruen/ruen.train.train.short.clean.clean.clean.clean.clean
+cp ruen/ruen.train.train.short.clean.clean.clean.clean.clean ruen/ruen.train.train
+
