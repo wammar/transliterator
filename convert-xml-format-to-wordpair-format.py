@@ -40,13 +40,13 @@ for namedEntity in corpus.getElementsByTagName('Name'):
   # find source name
   srcNode = namedEntity.getElementsByTagName('SourceName')[0]
   srcText = srcNode.childNodes[0].data
-  srcText = textToM2m(srcText)
+  #srcText = textToM2m(srcText)
   # find each target name
   tgtNodes = namedEntity.getElementsByTagName('TargetName')
   for tgtNode in tgtNodes:
     tgtText = tgtNode.childNodes[0].data
-    tgtText = textToM2m(tgtText)
-    line = u'{0}\t{1}\n'.format(srcText, tgtText)
+    #tgtText = textToM2m(tgtText)
+    line = u'{0} ||| {1}\n'.format(srcText, tgtText)
     out.write(line)
 
 out.close()

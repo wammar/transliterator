@@ -3,10 +3,9 @@
 global {
   ducttape_experimental_submitters=enable
   ducttape_experimental_imports=enable
-}
 
-plan Full {
-    reach Dynamic 
+  m2m_delX=(DelX: yes="--delX" no="")
+  m2m_delY=(DelY: yes="--delY" no="")
 }
 
 task Static
@@ -15,6 +14,8 @@ task Static
     :: m2m_aligner=@
     :: m2m_maxX=@
     :: m2m_maxY=@
+    :: m2m_delX=@
+    :: m2m_delY=@
     < all_translit=$all_translit@Preprocess
     > train_train
     > test_src 
@@ -38,22 +39,22 @@ python $transliterator_home/convert-bars-format-to-m2m-format.py test test.m2m
 # run alignments and split the alignments into train/test
 $m2m_aligner \
     --alignerOut m2m.model \
-    --pScore --maxFn conYX --delX --maxX $m2m_maxX --maxY $m2m_maxY \
+    --pScore --maxFn conYX $m2m_delX $m2m_delY --maxX $m2m_maxX --maxY $m2m_maxY \
     -i all.m2m \
     -o all.align
 $m2m_aligner \
     --alignerIn m2m.model \
-    --pScore --maxFn conYX --delX --maxX $m2m_maxX --maxY $m2m_maxY \
+    --pScore --maxFn conYX $m2m_delX $m2m_delY --maxX $m2m_maxX --maxY $m2m_maxY \
     -i train.m2m \
     -o train.align
 $m2m_aligner \
     --alignerIn m2m.model \
-    --pScore --maxFn conYX --delX --maxX $m2m_maxX --maxY $m2m_maxY \
+    --pScore --maxFn conYX $m2m_delX $m2m_delY --maxX $m2m_maxX --maxY $m2m_maxY \
     -i dev.m2m \
     -o dev.align
 $m2m_aligner \
     --alignerIn m2m.model \
-    --pScore --maxFn conYX --delX --maxX $m2m_maxX --maxY $m2m_maxY \
+    --pScore --maxFn conYX $m2m_delX $m2m_delY --maxX $m2m_maxX --maxY $m2m_maxY \
     -i test.m2m \
     -o test.align
 
@@ -94,6 +95,7 @@ task Dynamic
     :: cdec_dir=@
     < train_train=$train_train@Static
     < dev_src=$dev_src@Static
+    < dev_ref=$dev_ref@Static
     < test_src=$test_src@Static
     < train_labels=$train_labels@Static
     < train_features=$train_features@Static
@@ -183,7 +185,8 @@ $cdec_dir/decoder/cdec \
     -w weights.final.gz \
     -i all-oovs.ru.txt.split \
     -k 100 \
-    > all-oovs.ru.txt.100best
+    > all-oovs.ru.txt.100best \
+    2> all-oovs.ru.txt.100best.stderr
 
 # then convert the labels into tokens
 python $transliterator_home/create-kbest-grammar.py \
@@ -197,7 +200,8 @@ $cdec_dir/decoder/cdec \
     -c decode-fine.ini \
     -w weights.final.gz \
     -i $dev_src \
-    > $dev_cdecout
+    &> $dev_cdecout
+   
 
 # compute accuracy on the dev set
 python $transliterator_home/acc.py \
@@ -206,5 +210,3 @@ python $transliterator_home/acc.py \
     $dev_ref \
     $dev_acc
 }
-
-
