@@ -20,15 +20,21 @@ an example configuration file is provided ``ruen-config.tape``. The following va
 * ``wammar_utils_dir`` root of [this repository](https://github.com/wammar/wammar-utils)
 * ``m2m_aligner`` path to [m2m aligner](https://code.google.com/p/m2m-aligner/)
 * ``cdec_dir`` path to [cdec decoder](https://github.com/redpony/cdec)
+* ``DelX: yes`` means that some characters in the source language may be deleted
+* ``DelY: yes`` means that some characters in the target language may be deleted
 
-example usage:
-```ducttape translit.tape -C ruen-config.tape -p Full -y```
+## example usage:
+```
+ducttape translit.tape -C ruen-config.tape -p Full -y
+```
 
-todos:
-- filter out long transliterations in crf training to save memory consumption (linear in number of input length, quadratic in number of unique labels).
+## todos:
+* use ``mpi_adagrad_optimize`` instead of ``mpi_flex_optimize`` 
+* rewrite ``convert-alignments-to-cdec-format.py``
 
-disclaimer:
-- scripts are still under development and may be unstable. please do contact me if anything does not work.
+##disclaimer:
+
+scripts are still under development and may be unstable. please do contact me if anything does not work.
 
 if you use this software, consider citing our ACL 2012 workshop paper:
 http://www.cs.cmu.edu/~wammar/pubs/translit-acl12.pdf
