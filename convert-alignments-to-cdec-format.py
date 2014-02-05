@@ -192,13 +192,18 @@ for line in alignments:
     for j in range(0,len(srcLetters)):
       srcTokenIndex += 1
       # set x[0]
-      x = srcToken[srcTokenIndex].replace(' ', '<space>')
+      if len(srcToken) > srcTokenIndex:
+        x = srcToken[srcTokenIndex].replace(' ', '<space>')
       # set x[-1]
       if srcTokenIndex-1 < 0: xM1 = u'<s>'
-      else: xM1 = srcToken[srcTokenIndex - 1].replace(' ', '<space>')
+      else: 
+        if len(srcToken) > srcTokenIndex-1:
+          xM1 = srcToken[srcTokenIndex - 1].replace(' ', '<space>')
       # set x[-2]
       if srcTokenIndex-2 < 0: xM2 = u'<s>'
-      else: xM2 = srcToken[srcTokenIndex - 2].replace(' ', '<space>')
+      else: 
+        if len(srcToken) > srcTokenIndex - 2:
+          xM2 = srcToken[srcTokenIndex - 2].replace(' ', '<space>')
       # set x[1]
       if srcTokenIndex+1 >= len(srcToken): xP1 = u'</s>'
       else: xP1 = srcToken[srcTokenIndex + 1].replace(' ', '<space>')
