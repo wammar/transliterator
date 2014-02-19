@@ -55,6 +55,8 @@ with io.open(args.grammar_filename, encoding='utf8', mode='w') as grammar_file:
       for label in labels:
         if label == u'_' or label == u'<scan>':
           continue
+        elif label == u'<space>':
+          transliteration.append(' ')
         elif len(label) == 1:
           transliteration.append(label)
         else:

@@ -6,6 +6,18 @@ global {
 
   m2m_delX=(DelX: yes="--delX" no="")
   m2m_delY=(DelY: yes="--delY" no="")
+  m2m_maxX=(MaxX: two="2" three="3" one="1")
+  m2m_maxY=(MaxY: two="2" three="3" one="1") 
+}
+
+task BuildTargetCharLM
+    :: wammar_utils_dir=@
+    :: kenlm_dir=@
+    :: tgt_mono_text=@
+    > tgt_mono_charlm
+{
+  python $wammar_utils_dir/print-letters-of-unique-words.py $tgt_mono_text tgt_mono_char
+  $kenlm_dir/bin/lmplz -o 3 --text tgt_mono_char  --arpa $tgt_mono_charlm --interpolate_unigrams --memory=10%
 }
 
 task Static
@@ -16,6 +28,7 @@ task Static
     :: m2m_maxY=@
     :: m2m_delX=@
     :: m2m_delY=@
+    #:: max_parallel_length=@
     < all_translit=$all_translit@Preprocess
     > train_train
     > test_src 
@@ -77,7 +90,7 @@ python $transliterator_home/convert-alignments-to-cdec-format.py \
     $train_features
 
 # remove names of length 15+ characters from the training set (to speed up training and reduce memory usage)
-python $wammar_utils_dir/prune-long-lines.py -tokens 30 -in train.train -out short
+python $wammar_utils_dir/prune-long-lines.py -tokens 50 -in train.train -out short
 cat short | grep -v "<scan> _ <scan>" >                    clean1
 cat clean1 | grep -v "<scan> _ _" >                   clean2
 cat clean2 | grep -v "_ _ _" >                  clean3
@@ -91,8 +104,8 @@ task Dynamic
     :: transliterator_home=@
     :: nprocs=@
     :: all_oovs=@
-    :: char_lm=@
     :: cdec_dir=@
+    < char_lm=$tgt_mono_charlm@BuildTargetCharLM
     < train_train=$train_train@Static
     < dev_src=$dev_src@Static
     < dev_ref=$dev_ref@Static
