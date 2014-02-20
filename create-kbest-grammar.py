@@ -17,7 +17,7 @@ oovs, kbests = None, None
 with io.open(args.oov_filename, encoding='utf8', mode='r') as oov_file, io.open(args.kbest_filename, encoding='utf8', mode='r') as kbest_file:
   oovs, kbests = oov_file.readlines(), kbest_file.readlines()
   for i in range(0, len(oovs)):
-    oovs[i] = oovs[i].strip().split()[0]
+    oovs[i] = oovs[i].strip().split('\t')[0]
 assert(len(oovs) > 0 and len(kbests) > 0)
 
 # load the language model
