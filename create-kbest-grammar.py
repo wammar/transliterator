@@ -53,10 +53,9 @@ with io.open(args.grammar_filename, encoding='utf8', mode='w') as grammar_file:
       labels = labels.split(' ')
       transliteration = []
       for label in labels:
+        label = label.replace('<space>', ' ')
         if label == u'_' or label == u'<scan>':
           continue
-        elif label == u'<space>':
-          transliteration.append(' ')
         elif len(label) == 1:
           transliteration.append(label)
         else:
